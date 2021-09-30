@@ -1,7 +1,7 @@
 /* src/App.js */
 import React, { useEffect, useState } from "react";
 import { API, graphqlOperation } from "aws-amplify";
-import { withAuthenticator } from "@aws-amplify/ui-react";
+import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
 
 import { createTodo } from "./graphql/mutations";
 import { listTodos } from "./graphql/queries";
@@ -24,7 +24,9 @@ const App = () => {
 
   async function fetchTodos() {
     try {
-      const todoData = await API.graphql(graphqlOperation(listTodos));
+      const todoData = await API.graphql(
+        graphqlOperation(listTodos, { limit: 5 })
+      );
       // console.log(todoData);
       const todos = todoData.data.listTodos.items;
       setTodos(todos);
@@ -47,30 +49,33 @@ const App = () => {
   }
 
   return (
-    <form onSubmit={addTodo}>
-      <div style={styles.container}>
-        <h2>Amplify Todos</h2>
-        <input
-          onChange={(event) => setInput("name", event.target.value)}
-          style={styles.input}
-          value={formState.name}
-          placeholder="Name"
-        />
-        <input
-          onChange={(event) => setInput("description", event.target.value)}
-          style={styles.input}
-          value={formState.description}
-          placeholder="Description"
-        />
-        <button style={styles.button}>Create Todo</button>
-        {todos.map((todo, index) => (
-          <div key={todo.id ? todo.id : index} style={styles.todo}>
-            <p style={styles.todoName}>{todo.name}</p>
-            <p style={styles.todoDescription}>{todo.description}</p>
-          </div>
-        ))}
-      </div>
-    </form>
+    <>
+      <AmplifySignOut />
+      <form onSubmit={addTodo}>
+        <div style={styles.container}>
+          <h2>Amplify Todos</h2>
+          <input
+            onChange={(event) => setInput("name", event.target.value)}
+            style={styles.input}
+            value={formState.name}
+            placeholder="Name"
+          />
+          <input
+            onChange={(event) => setInput("description", event.target.value)}
+            style={styles.input}
+            value={formState.description}
+            placeholder="Description"
+          />
+          <button style={styles.button}>Create Todo</button>
+          {todos.map((todo, index) => (
+            <div key={todo.id ? todo.id : index} style={styles.todo}>
+              <p style={styles.todoName}>{todo.name}</p>
+              <p style={styles.todoDescription}>{todo.description}</p>
+            </div>
+          ))}
+        </div>
+      </form>
+    </>
   );
 };
 
